@@ -1,6 +1,7 @@
 import requests as rq
 import json
 import threading
+import hashlib
 
 import udid
 udid_test = '0000111122223333444455556666777788889999'
@@ -20,7 +21,7 @@ time = 0
 token = ""
 
 def main():
-	crack_code()
+	calculate_hash(udid.udid, 1, "11111111111111111111111111111111")
 
 # Register a new user or update an old one
 def register(udid, new_name=""):
@@ -122,6 +123,7 @@ def get_token():
 # TODO
 # Save a score
 def save_score(score=1):
+	state = calculate_hash(udid.udid, score, token)
 	data = {
 		'udid' : udid.udid,
 		'score' : score,
@@ -141,7 +143,14 @@ def save_score(score=1):
 	except:
 		print("An error occurred while saving the score!")
 		return 0
-	
+
+# Calculate "state" hash
+def calculate_hash(udid, score, token):
+	string = udid + str(score) + token + "$1$_laZbmbx"
+	hash = hashlib.md5(string.encode("utf-8"))
+	state = hash.hexdigest()
+	print("State hash: " + state)
+	return state
 	
 if __name__ == '__main__':
 	main()
