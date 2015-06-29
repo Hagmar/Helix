@@ -20,7 +20,7 @@ time = 0
 token = ""
 
 def main():
-	register(udid.udid, "TestUser")
+	crack_code()
 
 # Register a new user or update an old one
 def register(udid, new_name=""):
@@ -63,8 +63,9 @@ def get_name():
 		return 0
 	return 1
 
-# Crack current code for playing the game
+# Bruteforcing current code for playing the game
 def crack_code():
+	print("Bruteforcing game code...")
 	threads = []
 	for i in range(6):
 		for j in range(6):
