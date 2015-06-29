@@ -20,7 +20,7 @@ time = 0
 token = ""
 
 def main():
-	register(udid_test, "TestUser")
+	register(udid.udid, "TestUser")
 
 # Register a new user or update an old one
 def register(udid, new_name=""):
@@ -46,13 +46,13 @@ def register(udid, new_name=""):
 
 # Change your username
 def rename(new_name):
-	return register(udid, new_name)
+	return register(udid.udid, new_name)
 
 # Get corresponding username from a udid
 def get_name():
 	global name
 	data = {
-		'udid' : udid
+		'udid' : udid.udid
 	}
 	res = rq.post(url_name, data=data)
 	js = json.loads(res.text)
@@ -107,7 +107,7 @@ def get_time():
 def get_token():
 	global token
 	data = {
-		'udid' : udid
+		'udid' : udid.udid
 	}
 	res = rq.post(url_token, data=data)
 	js = json.loads(res.text)
@@ -122,7 +122,7 @@ def get_token():
 # Save a score
 def save_score(score=1):
 	data = {
-		'udid' : udid,
+		'udid' : udid.udid,
 		'score' : score,
 		'session' : "????????????????",	#TODO
 		'state' : "????????????????",	#TODO
