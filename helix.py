@@ -23,7 +23,20 @@ time = 0
 token = ""
 
 def main():
+	#crack_code()
+	
+	print("Fetching name")
+	get_name()
+	sleep(5)
+	print("Fetching server time")
+	get_time()
+	sleep(10)
+	print("Fetching token")
+	get_token()
+	sleep(80)
+	print("Saving score")
 	save_score(score=32947)
+	
 
 # Register a new user or update an old one
 def register(udid, new_name=""):
@@ -117,6 +130,7 @@ def get_token():
 	js = json.loads(res.text)
 	try:
 		token = js['data']['token']
+		print("Game token received: " + token)
 	except:
 		print("Invalid udid!")
 		return 0
