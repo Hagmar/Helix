@@ -1,5 +1,7 @@
 import requests as rq
 import json
+import datetime
+from time import sleep
 import threading
 import hashlib
 
@@ -21,7 +23,7 @@ time = 0
 token = ""
 
 def main():
-	calculate_hash(udid.udid, 1, "11111111111111111111111111111111")
+	save_score(score=32947)
 
 # Register a new user or update an old one
 def register(udid, new_name=""):
@@ -103,7 +105,7 @@ def get_time():
 	except:
 		print("An unexpected error has occurred!")
 		return 0
-	return 1
+	return time
 
 # Get a game token
 def get_token():
@@ -124,11 +126,12 @@ def get_token():
 # Save a score
 def save_score(score=1):
 	state = calculate_hash(udid.udid, score, token)
+	session = calculate_session()
 	data = {
 		'udid' : udid.udid,
 		'score' : score,
-		'session' : "????????????????",	#TODO
-		'state' : state
+		'session' : session,
+		'state' : state,
 		'version' : '2.0'
 	}
 	res = rq.post(url_save, data=data)
@@ -142,6 +145,7 @@ def save_score(score=1):
 			return 0
 	except:
 		print("An error occurred while saving the score!")
+		print (js)
 		return 0
 
 # Calculate "state" hash
@@ -151,6 +155,19 @@ def calculate_hash(udid, score, token):
 	state = hash.hexdigest()
 	print("State hash: " + state)
 	return state
+
+# Calculate session ID
+def calculate_session():
+	sync_start_time = datetime.datetime.now().timestamp()
+	server_time = get_time()/1000.0
+	sync_end_time = datetime.datetime.now().timestamp()
+	sync_delay = sync_end_time - sync_start_time
+	time_offset = (server_time - sync_end_time) + sync_delay/2.0;
+	phase_id = (int) (datetime.datetime.now().timestamp() + time_offset)
+	phase_cycle_id = (int) (phase_id / 105)
+	current_competition_id = (int) (phase_cycle_id / 9)
+	return current_competition_id
 	
+
 if __name__ == '__main__':
 	main()
