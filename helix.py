@@ -1,3 +1,5 @@
+from sys import exit
+import argparse
 import requests as rq
 import json
 import datetime
@@ -6,7 +8,6 @@ import threading
 import hashlib
 
 import udid
-udid_test = '0000111122223333444455556666777788889999'
 
 url_register = "https://helixgame.liseberg.se/register"
 url_sessionscores = "https://helixgame.liseberg.se/sessionscores"
@@ -22,9 +23,8 @@ code = 0
 time = 0
 token = ""
 
-def main():
-	#crack_code()
-	
+def set_score(score):
+	print("Simulating regular game session...")
 	print("Fetching name")
 	get_name()
 	sleep(5)
@@ -35,20 +35,18 @@ def main():
 	get_token()
 	sleep(80)
 	print("Saving score")
-	save_score(score=32947)
+	save_score(score=score)
 	
 
 # Register a new user or update an old one
-def register(udid, new_name=""):
-	if not new_name:
-		new_name = name
+def register(udid, new_name="noob"):
 	data = {
 		'udid' : udid,
 		'name' : new_name
 	}
 	res = rq.post(url_register, data=data)
 	js = json.loads(res.text)
-	print(res.text)
+
 	try:
 		if js['data']['message'] == "New user registered":
 			print("Successfully registered user " + js['data']['name'])
@@ -60,20 +58,16 @@ def register(udid, new_name=""):
 		print("Could not register user!")
 	return 0
 
-# Change your username
-def rename(new_name):
-	return register(udid.udid, new_name)
-
 # Get corresponding username from a udid
-def get_name():
-	global name
+def get_name(udid):
 	data = {
-		'udid' : udid.udid
+		'udid' : udid
 	}
 	res = rq.post(url_name, data=data)
 	js = json.loads(res.text)
 	try:
 		name = js['data']['name']
+		print("Username for specified udid is " + str(name))
 	except:
 		print("Invalid udid!")
 		return 0
@@ -136,13 +130,12 @@ def get_token():
 		return 0
 	return 1
 
-# TODO
 # Save a score
 def save_score(score=1):
 	state = calculate_hash(udid.udid, score, token)
 	session = calculate_session()
 	data = {
-		'udid' : udid.udid,
+		'udid' : udid,
 		'score' : score,
 		'session' : session,
 		'state' : state,
@@ -153,14 +146,13 @@ def save_score(score=1):
 	try:
 		if js['data'] == "Success":
 			print("Score saved successfully!")
-			return 1
+			return 0
 		else:
 			print("Warning! The score was not saved successfully!")
-			return 0
+			return 1
 	except:
 		print("An error occurred while saving the score!")
-		print (js)
-		return 0
+		return 1
 
 # Calculate "state" hash
 def calculate_hash(udid, score, token):
@@ -182,6 +174,27 @@ def calculate_session():
 	current_competition_id = (int) (phase_cycle_id / 9)
 	return current_competition_id
 	
+def main():
+	global udid
+	parser = argparse.ArgumentParser(description="Win at Helix!")
+	mode = parser.add_mutually_exclusive_group(required=True)
+	mode.add_argument('-r', '--register', '--rename', type=str, dest="username", help='Register a new user or change the username of an existing user')
+	mode.add_argument('-c', '--code', action='store_true', help='Crack and display the current game code')
+	mode.add_argument('-n', '--name', action='store_true', help='Retrieve the username for a specified ID')
+	mode.add_argument('-s', '--score', type=int, help='Desired score')
+	parser.add_argument('-u', '--udid', default=udid.udid, help='Target ID. Defaults to udid specified in udid.py')
+
+	args = parser.parse_args()
+	udid = args.udid
+
+	if args.username:
+		register(udid, args.username)
+	elif args.code:
+		crack_code()
+	elif args.name:
+		get_name(udid)
+	else:
+		set_score(args.score)
 
 if __name__ == '__main__':
 	main()
