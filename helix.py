@@ -17,25 +17,23 @@ url_time = "https://helixgame.liseberg.se/time"
 url_token = "https://helixgame.liseberg.se/requesttoken"
 url_save = "https://helixgame.liseberg.se/savescore"
 
-name = ""
 done = False
 code = 0
-time = 0
-token = ""
 
-def set_score(score):
+def set_score(udid, score):
 	print("Simulating regular game session...")
 	print("Fetching name")
-	get_name()
+	name = get_name(udid)
 	sleep(5)
 	print("Fetching server time")
-	get_time()
+	time = get_time()
 	sleep(10)
 	print("Fetching token")
-	get_token()
+	token = get_token(udid)
+	print("Waiting to simulate gameplay...")
 	sleep(80)
 	print("Saving score")
-	save_score(score=score)
+	save_score(udid, token, score=score)
 	
 
 # Register a new user or update an old one
@@ -50,13 +48,11 @@ def register(udid, new_name="noob"):
 	try:
 		if js['data']['message'] == "New user registered":
 			print("Successfully registered user " + js['data']['name'])
-			return 1
 		elif js['data']['message'] == "User updated":
 			print("User successfully updated")
-			return 2
 	except:
 		print("Could not register user!")
-	return 0
+		exit(1)
 
 # Get corresponding username from a udid
 def get_name(udid):
@@ -68,10 +64,10 @@ def get_name(udid):
 	try:
 		name = js['data']['name']
 		print("Username for specified udid is " + str(name))
+		return name
 	except:
 		print("Invalid udid!")
-		return 0
-	return 1
+		exit(1)
 
 # Bruteforcing current code for playing the game
 def crack_code():
@@ -104,35 +100,34 @@ def crack(start):
 
 # Get current server time
 def get_time():
-	global time
 	res = rq.get(url_time)
 	js = json.loads(res.text)
 	try:
 		time = js['data']['time']
+		return time
 	except:
 		print("An unexpected error has occurred!")
-		return 0
-	return time
+		exit(1)
 
 # Get a game token
-def get_token():
+def get_token(udid):
 	global token
 	data = {
-		'udid' : udid.udid
+		'udid' : udid
 	}
 	res = rq.post(url_token, data=data)
 	js = json.loads(res.text)
 	try:
 		token = js['data']['token']
 		print("Game token received: " + token)
+		return token
 	except:
 		print("Invalid udid!")
-		return 0
-	return 1
+		exit(1)
 
 # Save a score
-def save_score(score=1):
-	state = calculate_hash(udid.udid, score, token)
+def save_score(udid, token, score=1):
+	state = calculate_hash(udid, score, token)
 	session = calculate_session()
 	data = {
 		'udid' : udid,
@@ -194,7 +189,9 @@ def main():
 	elif args.name:
 		get_name(udid)
 	else:
-		set_score(args.score)
+		set_score(udid, args.score)
+	
+	exit(0)
 
 if __name__ == '__main__':
 	main()
