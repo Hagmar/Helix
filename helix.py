@@ -87,7 +87,7 @@ def crack_code():
 # Bruteforce current code
 def crack(start):
 	global done, code
-	data = {}
+        data = { 'udid' : udid }
 	for i in range(6):
 		for j in range(6):
 			if done:
