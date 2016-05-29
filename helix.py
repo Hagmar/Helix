@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from sys import exit
 import argparse
 import requests as rq
@@ -34,7 +36,6 @@ def set_score(udid, score):
 	sleep(80)
 	print("Saving score")
 	save_score(udid, token, score=score)
-	
 
 # Register a new user or update an old one
 def register(udid, new_name="noob"):
@@ -78,7 +79,7 @@ def crack_code():
 			thread = threading.Thread(target=crack, args=[i*1000+j*100])
 			thread.start()
 			threads.append(thread)
-	
+
 	for thread in threads:
 		thread.join()
 	print("The current code is: " + str(code))
@@ -168,7 +169,7 @@ def calculate_session():
 	phase_cycle_id = (int) (phase_id / 105)
 	current_competition_id = (int) (phase_cycle_id / 9)
 	return current_competition_id
-	
+
 def main():
 	global udid
 	parser = argparse.ArgumentParser(description="Win at Helix!")
@@ -190,7 +191,7 @@ def main():
 		get_name(udid)
 	else:
 		set_score(udid, args.score)
-	
+
 	exit(0)
 
 if __name__ == '__main__':
