@@ -165,9 +165,9 @@ def calculate_session():
     sync_end_time = datetime.datetime.now().timestamp()
     sync_delay = sync_end_time - sync_start_time
     time_offset = (server_time - sync_end_time) + sync_delay/2.0;
-    phase_id = (int) (datetime.datetime.now().timestamp() + time_offset)
-    phase_cycle_id = (int) (phase_id / 105)
-    current_competition_id = (int) (phase_cycle_id / 9)
+    phase_id = int(datetime.datetime.now().timestamp() + time_offset)
+    phase_cycle_id = int(phase_id / 105)
+    current_competition_id = int(phase_cycle_id / 9)
     return current_competition_id
 
 def main():
